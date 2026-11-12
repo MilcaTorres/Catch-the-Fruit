@@ -28,11 +28,26 @@ public class FallingObject : MonoBehaviour
     private Rigidbody2D rb;
     private Camera cam;
     private float halfHeight;
+    private bool consumed;
+
+    /// <summary>
+    /// Marca el objeto como procesado. Devuelve false si ya lo procesó otro trigger
+    /// (Destroy es diferido, así que evita contar dos veces canasta + suelo en el mismo frame).
+    /// </summary>
+    public bool TryConsume()
+    {
+        if (consumed) return false;
+        consumed = true;
+        return true;
+    }
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         rb.gravityScale = 0f;
+        // Nota: no hace falta useFullKinematicContacts. Como el collider es Trigger, Box2D/Unity
+        // sí reporta OnTriggerEnter2D contra Kinematic (canasta) y estáticos (suelo).
+        // Ese flag solo afecta a colisiones sólidas (OnCollisionEnter2D).
         cam = Camera.main;
 
         var col = GetComponent<Collider2D>();

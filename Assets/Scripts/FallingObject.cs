@@ -17,6 +17,13 @@ public class FallingObject : MonoBehaviour
     [Tooltip("Velocidad de caída en unidades por segundo.")]
     [SerializeField] private float fallSpeed = 3f;
 
+    [Header("Balanceo")]
+    [Tooltip("Ángulo máximo (grados) que se inclina a cada lado mientras cae. 0 = sin rotación.")]
+    [Min(0f)] [SerializeField] private float swayAngle = 15f;
+
+    [Tooltip("Oscilaciones por segundo del balanceo.")]
+    [Min(0f)] [SerializeField] private float swaySpeed = 1.2f;
+
     public int Points => points;
     public bool IsBomb => isBomb;
     public float FallSpeed
@@ -29,6 +36,7 @@ public class FallingObject : MonoBehaviour
     private Camera cam;
     private float halfHeight;
     private bool consumed;
+    private float swayPhase;
 
     /// <summary>
     /// Marca el objeto como procesado. Devuelve false si ya lo procesó otro trigger
@@ -52,11 +60,18 @@ public class FallingObject : MonoBehaviour
 
         var col = GetComponent<Collider2D>();
         halfHeight = col != null ? col.bounds.extents.y : 0.5f;
+
+        // Fase aleatoria para que no se balanceen todos sincronizados.
+        swayPhase = Random.value * Mathf.PI * 2f;
     }
 
     private void FixedUpdate()
     {
-        rb.MovePosition(rb.position + Vector2.down * fallSpeed * Time.fixedDeltaTime);
+        Vector2 nextPos = rb.position + Vector2.down * fallSpeed * Time.fixedDeltaTime;
+        float angle = swayAngle * Mathf.Sin(Time.time * swaySpeed * Mathf.PI * 2f + swayPhase);
+        // Posición y rotación en una sola llamada (llamar MovePosition y MoveRotation por
+        // separado sobre un cuerpo Kinematic puede hacer que una anule a la otra).
+        rb.MovePositionAndRotation(nextPos, angle);
     }
 
     private void Update()

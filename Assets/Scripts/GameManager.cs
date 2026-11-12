@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
 {
     public enum GameState { Playing, Paused, GameOver }
     public enum GameOverReason { None, TimeUp, NoLives }
+    public enum LifeLossCause { BombCaught, FruitDropped }
 
     public static GameManager Instance { get; private set; }
 
@@ -46,6 +47,10 @@ public class GameManager : MonoBehaviour
     public event Action<int> LivesChanged;
     /// <summary>Se invoca cada frame mientras se juega con los segundos restantes.</summary>
     public event Action<float> TimeChanged;
+    /// <summary>Se invoca al atrapar una fruta con los puntos que dio.</summary>
+    public event Action<int> FruitCaught;
+    /// <summary>Se invoca al perder una vida (antes de GameOver si era la última).</summary>
+    public event Action<LifeLossCause> LifeLost;
     public event Action GameOver;
     /// <summary>Se invoca al pausar (true) o reanudar (false).</summary>
     public event Action<bool> PauseChanged;
@@ -118,15 +123,17 @@ public class GameManager : MonoBehaviour
 
         Score += amount;
         Debug.Log($"[GameManager] +{amount} puntos. Puntos: {Score} | Vidas: {Lives}");
+        FruitCaught?.Invoke(amount);
         ScoreChanged?.Invoke(Score);
     }
 
-    public void LoseLife(string reason)
+    public void LoseLife(LifeLossCause cause)
     {
         if (!IsPlaying) return;
 
         Lives = Mathf.Max(0, Lives - 1);
-        Debug.Log($"[GameManager] -1 vida ({reason}). Puntos: {Score} | Vidas: {Lives}");
+        Debug.Log($"[GameManager] -1 vida ({cause}). Puntos: {Score} | Vidas: {Lives}");
+        LifeLost?.Invoke(cause);
         LivesChanged?.Invoke(Lives);
 
         if (Lives == 0)

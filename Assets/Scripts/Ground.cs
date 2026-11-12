@@ -14,7 +14,7 @@ public class Ground : MonoBehaviour
 
         var gm = GameManager.Instance;
         if (!falling.IsBomb && gm != null && gm.IsPlaying)
-            gm.LoseLife("fruta perdida");
+            gm.LoseLife(GameManager.LifeLossCause.FruitDropped);
 
         Destroy(falling.gameObject);
     }

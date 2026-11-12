@@ -7,6 +7,13 @@ using UnityEngine;
 [RequireComponent(typeof(Collider2D))]
 public class BasketCatcher : MonoBehaviour
 {
+    private BasketFeedback feedback;
+
+    private void Awake()
+    {
+        feedback = GetComponent<BasketFeedback>();
+    }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
         var falling = other.GetComponent<FallingObject>();
@@ -16,9 +23,11 @@ public class BasketCatcher : MonoBehaviour
         if (gm != null && gm.IsPlaying)
         {
             if (falling.IsBomb)
-                gm.LoseLife("bomba atrapada");
+                gm.LoseLife(GameManager.LifeLossCause.BombCaught);
             else
                 gm.AddScore(falling.Points);
+
+            if (feedback != null) feedback.Bounce();
         }
 
         Destroy(falling.gameObject);

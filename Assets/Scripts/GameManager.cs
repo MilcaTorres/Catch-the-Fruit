@@ -122,7 +122,6 @@ public class GameManager : MonoBehaviour
         if (!IsPlaying) return;
 
         Score += amount;
-        Debug.Log($"[GameManager] +{amount} puntos. Puntos: {Score} | Vidas: {Lives}");
         FruitCaught?.Invoke(amount);
         ScoreChanged?.Invoke(Score);
     }
@@ -132,7 +131,6 @@ public class GameManager : MonoBehaviour
         if (!IsPlaying) return;
 
         Lives = Mathf.Max(0, Lives - 1);
-        Debug.Log($"[GameManager] -1 vida ({cause}). Puntos: {Score} | Vidas: {Lives}");
         LifeLost?.Invoke(cause);
         LivesChanged?.Invoke(Lives);
 
@@ -149,7 +147,6 @@ public class GameManager : MonoBehaviour
         if (!IsPlaying) return;
         State = GameState.Paused;
         Time.timeScale = 0f;
-        Debug.Log("[GameManager] Juego en pausa.");
         PauseChanged?.Invoke(true);
     }
 
@@ -158,7 +155,6 @@ public class GameManager : MonoBehaviour
         if (!IsPaused) return;
         State = GameState.Playing;
         Time.timeScale = 1f;
-        Debug.Log("[GameManager] Juego reanudado.");
         PauseChanged?.Invoke(false);
     }
 
